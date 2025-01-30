@@ -2,17 +2,113 @@ package main
 
 import (
 	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
-func unite(calmap Calmap) func() {
-	// closures are nice!
+func fetchFile(name string) (string, error) {
+	content, err := os.ReadFile(name)
+	return string(content), err
+}
+
+func fetchUrl(url string) (string, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	return string(body), nil
+}
+
+func fetch(thing string) (string, error) {
+	_, err := os.Stat(thing)
+	if err == nil {
+		// file exists
+		return fetchFile(thing)
+	}
+	// probably a URL
+	return fetchUrl(thing)
+}
+
+func extractVEVENT(calendar string) string {
+	extracted := ""
+
+	insideEvent := false
+	for _, line := range strings.Split(calendar, "\n") {
+		// note: `line` keeps its \r
+
+		// start of event section
+		if strings.HasPrefix(line, "BEGIN:VEVENT") {
+			insideEvent = true
+		}
+
+		// append line if inside event
+		if insideEvent {
+			extracted += line + "\n"
+		}
+
+		// end of event section
+		if strings.HasPrefix(line, "END:VEVENT") {
+			insideEvent = false
+		}
+	}
+
+	return extracted
+}
+
+func fetchAndMerge(entry CalEntry) (string, error) {
+	// header
+	merged := "BEGIN:VCALENDAR\r\n"
+	merged += "VERSION:2.0\r\n"
+	merged += fmt.Sprintf("X-WR-CALNAME:%s\r\n", entry.Title)
+	merged += "PRODID:-//CalUnite//NONSGML v1.0//EN\r\n"
+
+	for _, thing := range entry.Urls {
+		content, err := fetch(thing)
+		if err != nil {
+			return "", err
+		}
+
+		// assume well-formatted RFC 5545
+		merged += extractVEVENT(content)
+	}
+
+	// footer
+	merged += "END:VCALENDAR\r\n"
+	return merged, nil
+}
+
+func unite(calmap CalMap) func() {
+	// closures are awesome!
 	return func() {
 		for calendar, entry := range calmap {
-			fmt.Println(calendar, entry.Title)
-			for _, url := range entry.Urls {
-				fmt.Println(url)
+			// get merged calendar
+			merged, err := fetchAndMerge(entry)
+			if err != nil {
+				log.Print(err)
+				continue
 			}
-			fmt.Println()
+
+			// create directory if it doesn't exist
+			err = os.MkdirAll(filepath.Dir(calendar), os.ModePerm)
+			if err != nil {
+				log.Print(err)
+				continue
+			}
+			// write merged calendar
+			err = os.WriteFile(calendar, []byte(merged), 0666)
+			if err != nil {
+				log.Print(err)
+			}
 		}
 	}
 }

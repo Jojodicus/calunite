@@ -1,23 +1,31 @@
 package main
 
-import "github.com/robfig/cron/v3"
+import (
+	"os"
 
-type Calmap map[string]struct {
+	"github.com/robfig/cron/v3"
+)
+
+type CalEntry struct {
 	Title string
 	Urls  []string
 }
+type CalMap map[string]CalEntry
 
-const CfgName = "./config.yml"
+const CfgPath = "./test.yml"
 const ContentDir = "./wwwdata"
-const Addr = ""
+const Addr = "0.0.0.0"
 const Port = 8080
-const Cronjob = "@every 5s"
+const Cronjob = "@every 5s" // format: https://pkg.go.dev/github.com/robfig/cron#hdr-CRON_Expression_Format
 
 func main() {
-	calmap, err := parseYml(CfgName)
+	calmap, err := parseYml(CfgPath)
 	if err != nil {
 		panic(err)
 	}
+
+	// to make relative paths work
+	os.Chdir(ContentDir)
 
 	c := cron.New()
 	c.AddFunc(Cronjob, unite(calmap))

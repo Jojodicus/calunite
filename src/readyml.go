@@ -6,13 +6,13 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func parseYml(filename string) (Calmap, error) {
+func parseYml(filename string) (CalMap, error) {
 	file, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
 
-	var calmap Calmap
+	var calmap CalMap
 
 	err = yaml.Unmarshal(file, &calmap)
 	if err != nil {
