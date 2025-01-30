@@ -1,0 +1,13 @@
+---
+work.ics:
+  title: Work
+  urls:
+    - https://work.com/deadlines.ics
+    - https://work.com/holidays.ics
+
+family.ics:
+  title: Family
+  urls:
+    - https://smith.me/birthdays.ics
+    - https://smith.me/vacation.ics
+    - https://johnson.me/duties.ics
