@@ -10,8 +10,9 @@ for/family.ics: # subdirectories are also supported
   urls:
     - https://smith.me/birthdays.ics
     - https://johnson.me/duties.ics
-    - /data/vacation.ics # a local file, needs to be mounted within the container
-    - work.ics           # if a non-absolute path (no / at the front) is given, this refers to a previously defined merged calendar
+    - /data/vacation.ics # a local file (absolute path only), needs to be mounted within the container
+    - work.ics           # if a relative path (no `/` at the front) is given, this refers to a previously defined merged calendar
+                         # note: keep in mind that cyclic definitions could lead to exponential growth
 
 # CalUnite can also be used to re-host a single calendar and shorten its URL
 doc.ics:

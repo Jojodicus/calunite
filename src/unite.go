@@ -70,7 +70,7 @@ func fetchAndMerge(entry CalEntry) (string, error) {
 	merged := "BEGIN:VCALENDAR\r\n"
 	merged += "VERSION:2.0\r\n"
 	merged += fmt.Sprintf("X-WR-CALNAME:%s\r\n", entry.Title)
-	merged += "PRODID:-//CalUnite//NONSGML v1.0//EN\r\n"
+	merged += fmt.Sprintf("PRODID:-//%s//NONSGML v1.0//EN\r\n", ProdID)
 
 	for _, thing := range entry.Urls {
 		content, err := fetch(thing)

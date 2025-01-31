@@ -14,6 +14,7 @@ type CalMap map[string]CalEntry
 
 const CfgPath = "./test.yml"
 const ContentDir = "./wwwdata"
+const ProdID = "CalUnite"
 const Addr = "0.0.0.0"
 const Port = 8080
 const Cronjob = "@every 5s" // format: https://pkg.go.dev/github.com/robfig/cron#hdr-CRON_Expression_Format

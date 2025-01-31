@@ -7,6 +7,6 @@ import (
 )
 
 func serve() {
-	http.Handle("/", http.FileServer(http.Dir(ContentDir)))
+	http.Handle("/", http.FileServer(http.Dir("."))) // we are already in the content directory
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", Addr, Port), nil))
 }
