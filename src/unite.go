@@ -22,6 +22,11 @@ func IsUrl(str string) bool {
 }
 
 func fetchUrl(url string) (string, error) {
+	// rewrite url, the webcal protocol is just https in disguise
+	if strings.HasPrefix(url, "webcal") {
+		url = strings.Replace(url, "webcal", "https", 1)
+	}
+
 	resp, err := http.Get(url)
 	if err != nil {
 		return "", err
