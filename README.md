@@ -85,7 +85,7 @@ example.com {
 If you're looking to host this without having a public IP (typical for most home internet connections), you could use something like a [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/).
 A curated guide on how to set this up can be found [here](https://dittrich.pro/cloudflare-tunnel-homelab/).
 
-## How to get iCal links
+## 🔗 How to get iCal links
 
 ### Google Calendar
 
@@ -101,7 +101,7 @@ Then, click on the person icon next to a calendar (will appear when hovering ove
 On mobile, under "Calendars", press the "i" icon next to a calendar.
 Make the calendar public and copy the link.
 
-## Subscribing to calendars
+## 📡 Subscribing to calendars
 
 ### Google Calendar
 
