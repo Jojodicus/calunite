@@ -12,8 +12,7 @@ for/family.ics: # subdirectories are also supported
     - https://johnson.me/duties.ics
     - /data/vacation.ics # a local file (absolute path only), needs to be mounted within the container
     - work.ics           # if a relative path (no `/` at the front) is given, this refers to a previously defined merged calendar
-                         # because of the map implementation, this can take a few iterations to get resolved, don't be scared by the error messages
-                         # note: keep in mind that cyclic definitions could lead to exponential growth
+                         # note: cyclic definitions would lead to exponential growth and are unsupported
 
 # CalUnite can also be used to re-host a single calendar and shorten its URL
 doc.ics:

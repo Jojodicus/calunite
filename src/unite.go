@@ -102,25 +102,25 @@ func fetchAndMerge(entry CalEntry) (string, error) {
 	return merged, nil
 }
 
-func unite(calmap CalMap) func() {
+func unite(caldata CalData) func() {
 	// closures are awesome!
 	return func() {
-		for calendar, entry := range calmap {
+		for _, datum := range caldata {
 			// get merged calendar
-			merged, err := fetchAndMerge(entry)
+			merged, err := fetchAndMerge(datum.Entry)
 			if err != nil {
 				log.Print(err)
 				continue
 			}
 
 			// create directory if it doesn't exist
-			err = os.MkdirAll(filepath.Dir(calendar), os.ModePerm)
+			err = os.MkdirAll(filepath.Dir(datum.File), os.ModePerm)
 			if err != nil {
 				log.Print(err)
 				continue
 			}
 			// write merged calendar
-			err = os.WriteFile(calendar, []byte(merged), 0666)
+			err = os.WriteFile(datum.File, []byte(merged), 0666)
 			if err != nil {
 				log.Print(err)
 			}

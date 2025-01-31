@@ -22,6 +22,7 @@ ENV CFG_PATH=/config/config.yml
 ENV CRON="@every 15m"
 ENV PROD_ID=CalUnite
 ENV CONTENT_DIR=/wwwdata
+ENV FILE_NAVIGATION=false
 ENV ADDR=0.0.0.0
 ENV PORT=8080
 

@@ -12,14 +12,18 @@ type CalEntry struct {
 	Title string
 	Urls  []string
 }
-type CalMap map[string]CalEntry
+type CalDatum struct {
+	File  string
+	Entry CalEntry
+}
+type CalData []CalDatum
 
-var CfgPath, Cronjob, ProdID, ContentDir, Addr, Port string
+var CfgPath, Cronjob, ProdID, ContentDir, FileNavigation, Addr, Port string
 
 func readEnv() error {
 	var there bool
-	keys := []string{"CFG_PATH", "CRON", "PROD_ID", "CONTENT_DIR", "ADDR", "PORT"}
-	vars := []*string{&CfgPath, &Cronjob, &ProdID, &ContentDir, &Addr, &Port}
+	keys := []string{"CFG_PATH", "CRON", "PROD_ID", "CONTENT_DIR", "FILE_NAVIGATION", "ADDR", "PORT"}
+	vars := []*string{&CfgPath, &Cronjob, &ProdID, &ContentDir, &FileNavigation, &Addr, &Port}
 
 	for i, key := range keys {
 		ptr := vars[i]

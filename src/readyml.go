@@ -1,13 +1,69 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
 	"gopkg.in/yaml.v3"
 )
 
-func parseYml(filename string) (CalMap, error) {
+type CalMap map[string]CalEntry
+
+func (caldata CalData) contains(file string) bool {
+	for _, e := range caldata {
+		if e.File == file {
+			return true
+		}
+	}
+	return false
+}
+
+func topoSort(calmap CalMap) (CalData, error) {
+	// sort out cyclic recursive definitions
+
+	// ordered list that satisfies all recursive dependencies
+	caldata := make(CalData, 0, len(calmap))
+
+	// continuously add "fine" entries until done
+	worklist := calmap
+	for len(worklist) > 0 {
+		changed := false
+		updatedWorklist := worklist
+
+		// find candidate
+		for k, e := range worklist {
+			ok := true
+			// recursive definition?
+			for _, calendar := range e.Urls {
+				_, there := calmap[calendar]
+				if there && !caldata.contains(calendar) {
+					// recursive definition, but not yet sorted
+					ok = false
+					break
+				}
+			}
+
+			if ok {
+				// definition fine, add to output
+				caldata = append(caldata, CalDatum{k, e})
+				changed = true
+				delete(updatedWorklist, k)
+			}
+		}
+
+		// cycle detected
+		if !changed {
+			return caldata, fmt.Errorf("config contains cycles: %s", worklist)
+		}
+
+		worklist = updatedWorklist
+	}
+
+	return caldata, nil
+}
+
+func parseYml(filename string) (CalData, error) {
 	file, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
@@ -22,5 +78,5 @@ func parseYml(filename string) (CalMap, error) {
 	}
 	log.Println("YAML parsing done")
 
-	return calmap, nil
+	return topoSort(calmap)
 }

@@ -14,7 +14,7 @@ My problem with these solutions are, that they either don't provide *enough* fea
 This is where **CalUnite** comes in:
 - Combine [RFC 5545](https://datatracker.ietf.org/doc/html/rfc5545) calendars (.ics) using URLs or local paths
 - Supports multiple calendars with a single config file
-- Recursive merging
+- Recursive merging (with cycle detection)
 - Combined calendars are immediately served with a webserver
 - Fast deployment using [Docker](https://www.docker.com/)
 - Written in memory-safe [Go](https://go.dev/)
@@ -45,6 +45,7 @@ services:
       CRON: "@every 15m"           # how often the merger should run, format: https://pkg.go.dev/github.com/robfig/cron#hdr-CRON_Expression_Format
       PROD_ID: CalUnite            # RFC 5545 PRODID, who created the calendar
       CONTENT_DIR: /wwwdata        # directory from which the files are served
+      FILE_NAVIGATION: false       # generate an index.html for directories to allow for navigation
       ADDR: 0.0.0.0                # address to bind to
       PORT: 8080                   # port to expose
 ```
