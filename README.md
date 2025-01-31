@@ -85,6 +85,6 @@ example.com {
 If you're looking to host this without having a public IP (typical for most home internet connections), you could use something like a [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/).
 A curated guide on how to set this up can be found [here](https://dittrich.pro/cloudflare-tunnel-homelab/).
 
-## Development
+## ⌨️ Development
 
 For local development, create a `testdata/config.yml`, then run `./run.sh` to start CalUnite via the commandline.
