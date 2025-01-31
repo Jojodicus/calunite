@@ -56,8 +56,13 @@ func main() {
 		panic(err)
 	}
 
+	// start first merge immediately
+	merger := unite(calmap)
+	merger()
+	fmt.Println("Initial merge finished")
+
 	c := cron.New()
-	c.AddFunc(Cronjob, unite(calmap))
+	c.AddFunc(Cronjob, merger)
 	c.Start()
 	fmt.Println("Started merger cronjob")
 
