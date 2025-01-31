@@ -85,6 +85,34 @@ example.com {
 If you're looking to host this without having a public IP (typical for most home internet connections), you could use something like a [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/).
 A curated guide on how to set this up can be found [here](https://dittrich.pro/cloudflare-tunnel-homelab/).
 
+## How to get iCal links
+
+### Google Calendar
+
+For Google, this is only possible on a desktop computer.
+Go to your [Google Calendar Settings](https://calendar.google.com/calendar/u/0/r/settings) and click on your desired calendar.
+Here, you can copy the "address in iCal format".
+For non-public calendars, you'll need the secret address.
+
+### Apple Calendar
+
+Go to your [Apple Calendar](https://www.icloud.com/calendar/).
+Then, click on the person icon next to a calendar (will appear when hovering over the name).
+On mobile, under "Calendars", press the "i" icon next to a calendar.
+Make the calendar public and copy the link.
+
+## Subscribing to calendars
+
+### Google Calendar
+
+For Google, this is only possible on a desktop computer.
+Go to [Google Calendar - Add from URL](https://calendar.google.com/calendar/u/0/r/settings/addbyurl) and paste the URL.
+
+### Apple Calendar
+
+On your Apple device, click "Calendars".
+Under "Add Calendar", add a subscription calendar and paste the URL.
+
 ## ⌨️ Development
 
 For local development, create a `testdata/config.yml`, then run `./run.sh` to start CalUnite via the commandline.
