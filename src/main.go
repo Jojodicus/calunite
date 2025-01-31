@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/robfig/cron/v3"
@@ -12,25 +13,53 @@ type CalEntry struct {
 }
 type CalMap map[string]CalEntry
 
-const CfgPath = "./test.yml"
-const ContentDir = "./wwwdata"
-const ProdID = "CalUnite"
-const Addr = "0.0.0.0"
-const Port = 8080
-const Cronjob = "@every 5s" // format: https://pkg.go.dev/github.com/robfig/cron#hdr-CRON_Expression_Format
+var CfgPath, Cronjob, ProdID, ContentDir, Addr, Port string
+
+func readEnv() error {
+	var there bool
+	keys := []string{"CFG_PATH", "CRON", "PROD_ID", "CONTENT_DIR", "ADDR", "PORT"}
+	vars := []*string{&CfgPath, &Cronjob, &ProdID, &ContentDir, &Addr, &Port}
+
+	for i, key := range keys {
+		ptr := vars[i]
+
+		*ptr, there = os.LookupEnv(key)
+		if !there {
+			return fmt.Errorf("missing %s", key)
+		}
+		fmt.Println(key, "=", *ptr)
+	}
+
+	return nil
+}
 
 func main() {
+	fmt.Println("CalUnite started, reading environment variables")
+
+	err := readEnv()
+	if err != nil {
+		panic(err)
+	}
+
 	calmap, err := parseYml(CfgPath)
 	if err != nil {
 		panic(err)
 	}
 
 	// to make relative paths work
-	os.Chdir(ContentDir)
+	err = os.MkdirAll(ContentDir, os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
+	err = os.Chdir(ContentDir)
+	if err != nil {
+		panic(err)
+	}
 
 	c := cron.New()
 	c.AddFunc(Cronjob, unite(calmap))
 	c.Start()
+	fmt.Println("Started merger cronjob")
 
 	serve()
 }

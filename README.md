@@ -41,7 +41,12 @@ services:
     ports:
       - 8080:8080
     environment: # OPTIONAL - the values below are the defaults
-      - # todo
+      CFG_PATH: /config/config.yml # path of config file within the container
+      CRON: "@every 15m"           # how often the merger should run, format: https://pkg.go.dev/github.com/robfig/cron#hdr-CRON_Expression_Format
+      PROD_ID: CalUnite            # RFC 5545 PRODID, who created the calendar
+      CONTENT_DIR: /wwwdata        # directory from which the files are served
+      ADDR: 0.0.0.0                # address to bind to
+      PORT: 8080                   # port to expose
 ```
 
 ---
@@ -79,3 +84,7 @@ example.com {
 
 If you're looking to host this without having a public IP (typical for most home internet connections), you could use something like a [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/).
 A curated guide on how to set this up can be found [here](https://dittrich.pro/cloudflare-tunnel-homelab/).
+
+## Development
+
+For local development, create a `testdata/config.yml`, then run `./run.sh` to start CalUnite via the commandline.

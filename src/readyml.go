@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -11,6 +12,7 @@ func parseYml(filename string) (CalMap, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(filename, "read successfully")
 
 	var calmap CalMap
 
@@ -18,6 +20,7 @@ func parseYml(filename string) (CalMap, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("YAML parsing done")
 
 	return calmap, nil
 }

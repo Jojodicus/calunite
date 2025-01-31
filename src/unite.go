@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,6 +14,11 @@ import (
 func fetchFile(name string) (string, error) {
 	content, err := os.ReadFile(name)
 	return string(content), err
+}
+
+func IsUrl(str string) bool {
+	u, err := url.Parse(str)
+	return err == nil && u.Scheme != "" && u.Host != ""
 }
 
 func fetchUrl(url string) (string, error) {
@@ -35,8 +41,12 @@ func fetch(thing string) (string, error) {
 		// file exists
 		return fetchFile(thing)
 	}
-	// probably a URL
-	return fetchUrl(thing)
+	if IsUrl(thing) {
+		return fetchUrl(thing)
+	}
+
+	// neither
+	return "", fmt.Errorf("not a valid format: \"%s\"", thing)
 }
 
 func extractVEVENT(calendar string) string {
