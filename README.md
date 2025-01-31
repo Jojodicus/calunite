@@ -2,7 +2,7 @@
 [![Docker](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![MIT](https://img.shields.io/badge/MIT-green?style=for-the-badge)](https://opensource.org/license/mit)
 
-# 🗓️ CalUnite
+# 🗓️ [CalUnite](https://hub.docker.com/r/jojodicus/calunite)
 
 Sharing calendars has historically always been a pain, at least for me.
 Especially when your goal is to combine a plethora of different calendars into one simple domain you can share with your significant other, relatives, or friend groups.
