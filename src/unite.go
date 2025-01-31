@@ -36,17 +36,17 @@ func fetchUrl(url string) (string, error) {
 }
 
 func fetch(thing string) (string, error) {
-	_, err := os.Stat(thing)
+	content, err := fetchFile(thing)
 	if err == nil {
-		// file exists
-		return fetchFile(thing)
+		// file exists and was read successfully
+		return content, nil
 	}
 	if IsUrl(thing) {
 		return fetchUrl(thing)
 	}
 
 	// neither
-	return "", fmt.Errorf("not a valid format: \"%s\"", thing)
+	return "", fmt.Errorf("error reading \"%s\" - %s", thing, err.Error())
 }
 
 func extractVEVENT(calendar string) string {

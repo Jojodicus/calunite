@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/robfig/cron/v3"
@@ -27,14 +28,14 @@ func readEnv() error {
 		if !there {
 			return fmt.Errorf("missing %s", key)
 		}
-		fmt.Println(key, "=", *ptr)
+		log.Println(key, "=", *ptr)
 	}
 
 	return nil
 }
 
 func main() {
-	fmt.Println("CalUnite started, reading environment variables")
+	log.Println("CalUnite started, reading environment variables")
 
 	err := readEnv()
 	if err != nil {
@@ -59,12 +60,12 @@ func main() {
 	// start first merge immediately
 	merger := unite(calmap)
 	merger()
-	fmt.Println("Initial merge finished")
+	log.Println("Initial merge finished")
 
 	c := cron.New()
 	c.AddFunc(Cronjob, merger)
 	c.Start()
-	fmt.Println("Started merger cronjob")
+	log.Println("Started merge cronjob")
 
 	serve()
 }
