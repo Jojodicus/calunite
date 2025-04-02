@@ -90,7 +90,8 @@ A curated guide on how to set this up can be found [here](https://dittrich.pro/c
 
 ### Google Calendar
 
-For Google, this is only possible on a desktop computer.
+For Google, this is only possible on the desktop webiste.
+If you are on mobile, you can change the view at the bottom of the page.
 Go to your [Google Calendar Settings](https://calendar.google.com/calendar/u/0/r/settings) and click on your desired calendar.
 Here, you can copy the "address in iCal format".
 For non-public calendars, you'll need the secret address.
@@ -106,7 +107,8 @@ Make the calendar public and copy the link.
 
 ### Google Calendar
 
-For Google, this is only possible on a desktop computer.
+For Google, this is only possible on the desktop website.
+If you are on mobile, you can change the view at the bottom of the page.
 Go to [Google Calendar - Add from URL](https://calendar.google.com/calendar/u/0/r/settings/addbyurl) and paste the URL.
 
 ### Apple Calendar
