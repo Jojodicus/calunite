@@ -16,6 +16,7 @@ This is where **CalUnite** comes in:
 - Supports multiple calendars with a single config file
 - Recursive merging (with cycle detection)
 - Combined calendars are immediately served with a webserver
+- Hot-reload configuration, no need to stop the container
 - Fast deployment using [Docker](https://www.docker.com/)
 - Written in memory-safe [Go](https://go.dev/)
 
@@ -24,6 +25,8 @@ This is where **CalUnite** comes in:
 A sample configuration file can be found at [config.yml](config.yml).
 It's recommended to read the documentation in there.
 Additional settings can be tweaked using the container's environment variables, see the following [Deployment](#️-deployment) section for more details.
+
+If you want to use a hot-reloadable configuration, make sure to use a bind mount (directory path in volume specifier, not a regular file), as is also shown in the examples. This ensures that the file is synced between host and container.
 
 ## 🏎️ Deployment
 

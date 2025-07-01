@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/fsnotify/fsnotify"
 	"gopkg.in/yaml.v3"
 )
 
@@ -79,4 +80,24 @@ func parseYml(filename string) (CalData, error) {
 	log.Println("YAML parsing done")
 
 	return topoSort(calmap)
+}
+
+func watchYml(watcher *fsnotify.Watcher) {
+	for {
+		select {
+		case event, ok := <-watcher.Events:
+			if !ok {
+				return
+			}
+			if event.Name == CfgPath {
+				log.Println("Modified", event.Name, "reloading...")
+				mergeAndSchedule(cronRunner)
+			}
+		case err, ok := <-watcher.Errors:
+			if !ok {
+				return
+			}
+			log.Fatal(err)
+		}
+	}
 }
