@@ -11,11 +11,9 @@ COPY src/*.go ./
 RUN CGO_ENABLED=0 GOOS=linux go build -o /calunite
 
 # deploy
-FROM alpine AS deploy
+FROM gcr.io/distroless/static-debian12 AS deploy
 
 WORKDIR /
-
-COPY --from=builder /calunite /calunite
 
 # default configuration
 ENV CFG_PATH=/config/config.yml
@@ -27,5 +25,7 @@ ENV ADDR=0.0.0.0
 ENV PORT=8080
 
 EXPOSE $PORT
+
+COPY --from=builder /calunite /calunite
 
 ENTRYPOINT ["/calunite"]
