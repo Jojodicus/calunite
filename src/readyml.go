@@ -4,12 +4,23 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/fsnotify/fsnotify"
 	"gopkg.in/yaml.v3"
 )
 
 type CalMap map[string]CalEntry
+
+func (calmap CalMap) String() string {
+	var sb strings.Builder
+	sb.WriteRune('|')
+	for s, _ := range calmap {
+		sb.WriteString(s)
+		sb.WriteRune('|')
+	}
+	return sb.String()
+}
 
 func (caldata CalData) contains(file string) bool {
 	for _, e := range caldata {
@@ -91,7 +102,12 @@ func watchYml(watcher *fsnotify.Watcher) {
 			}
 			if event.Name == CfgPath {
 				log.Println("Modified", event.Name, "reloading...")
-				mergeAndSchedule(cronRunner)
+				err := mergeAndSchedule(cronRunner)
+				if err != nil {
+					// kinda copy paste from main()...
+					log.Println("ERROR", err)
+					log.Println("No files will be served, check config or permissions!")
+				}
 			}
 		case err, ok := <-watcher.Errors:
 			if !ok {

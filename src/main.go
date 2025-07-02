@@ -40,41 +40,44 @@ func readEnv() error {
 	return nil
 }
 
-func createDirsAndCd() {
+func createDirsAndCd() error {
 	// to make relative paths work
 	err := os.MkdirAll(ContentDir, os.ModePerm)
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("could not create new directories: %v", err)
 	}
 	err = os.Chdir(ContentDir)
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("could not change working directory: %v", err)
 	}
+	return nil
 }
 
-func mergeAndSchedule(c *cron.Cron) {
+func mergeAndSchedule(c *cron.Cron) error {
 	// parse immediately, as little downtime as possible
 	calmap, err := parseYml(CfgPath)
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("could not parse yml: %v", err)
 	}
 
 	entries := c.Entries()
 	if len(entries) != 0 {
-		if len(entries) != 1 {
-			panic(fmt.Errorf("unexpected number of entries: %v", entries))
+		for i := range len(entries) {
+			c.Remove(entries[i].ID)
 		}
 
-		c.Remove(entries[0].ID)
 		<-c.Stop().Done() // avoid potential race condition
 		log.Println("Stopped previous cronjob")
 
 		// clean state
 		err := os.RemoveAll(ContentDir)
 		if err != nil {
-			panic(err)
+			return fmt.Errorf("could not clean old directory: %v", err)
 		}
-		createDirsAndCd()
+		err = createDirsAndCd()
+		if err != nil {
+			return err
+		}
 	}
 	// --- only section during reload with downtime ---
 
@@ -86,6 +89,7 @@ func mergeAndSchedule(c *cron.Cron) {
 	c.AddFunc(Cronjob, merger)
 	c.Start()
 	log.Println("Started merge cronjob")
+	return nil
 }
 
 func main() {
@@ -112,7 +116,11 @@ func main() {
 	createDirsAndCd()
 
 	cronRunner = cron.New()
-	mergeAndSchedule(cronRunner)
+	err = mergeAndSchedule(cronRunner)
+	if err != nil {
+		log.Println("ERROR", err)
+		log.Println("No files will be served, check config or permissions!")
+	}
 
 	serve()
 }
