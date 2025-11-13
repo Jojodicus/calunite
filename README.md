@@ -28,7 +28,7 @@ Additional settings can be tweaked using the container's environment variables, 
 
 If you want to use a hot-reloadable configuration, make sure to use a bind mount (directory path in volume specifier, not a regular file), as is also shown in the examples. This ensures that the file is synced between host and container.
 
-During a hot-reload, the **old content directory will be cleared entirely**, keep that in mind when mounting your own volumes ('/wwwdata' by default).
+During a hot-reload, the **old content directory will be cleared entirely**, keep that in mind when mounting your own volumes (`/wwwdata` by default).
 If you want to include files other than ones specified in the 'config.yml', it's advised to do that via a [reverse proxy](#-reverse-proxy) or as a sub-path from your existing webserver.
 
 ## 🏎️ Deployment
