@@ -15,7 +15,7 @@ type CalMap map[string]CalEntry
 func (calmap CalMap) String() string {
 	var sb strings.Builder
 	sb.WriteRune('|')
-	for s, _ := range calmap {
+	for s := range calmap {
 		sb.WriteString(s)
 		sb.WriteRune('|')
 	}

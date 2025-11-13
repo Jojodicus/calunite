@@ -53,20 +53,20 @@ func createDirsAndCd() error {
 	return nil
 }
 
-func mergeAndSchedule(c *cron.Cron) error {
+func mergeAndSchedule(cronjobs *cron.Cron) error {
 	// parse immediately, as little downtime as possible
 	calmap, err := parseYml(CfgPath)
 	if err != nil {
 		return fmt.Errorf("could not parse yml: %v", err)
 	}
 
-	entries := c.Entries()
+	entries := cronjobs.Entries()
 	if len(entries) != 0 {
 		for i := range len(entries) {
-			c.Remove(entries[i].ID)
+			cronjobs.Remove(entries[i].ID)
 		}
 
-		<-c.Stop().Done() // avoid potential race condition
+		<-cronjobs.Stop().Done() // avoid potential race condition
 		log.Println("Stopped previous cronjob")
 
 		// clean state
@@ -86,8 +86,8 @@ func mergeAndSchedule(c *cron.Cron) error {
 	merger()
 	log.Println("Initial merge finished")
 
-	c.AddFunc(Cronjob, merger)
-	c.Start()
+	cronjobs.AddFunc(Cronjob, merger)
+	cronjobs.Start()
 	log.Println("Started merge cronjob")
 	return nil
 }
