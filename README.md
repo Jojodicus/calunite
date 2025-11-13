@@ -28,6 +28,9 @@ Additional settings can be tweaked using the container's environment variables, 
 
 If you want to use a hot-reloadable configuration, make sure to use a bind mount (directory path in volume specifier, not a regular file), as is also shown in the examples. This ensures that the file is synced between host and container.
 
+During a hot-reload, the **old content directory will be cleared entirely**, keep that in mind when mounting your own volumes ('/wwwdata' by default).
+If you want to include files other than ones specified in the 'config.yml', it's advised to do that via a [reverse proxy](#-reverse-proxy) or as a sub-path from your existing webserver.
+
 ## 🏎️ Deployment
 
 CalUnite uses [Docker](https://www.docker.com/) for deployment. Preferably, this is done via [Compose](https://docs.docker.com/compose/):
@@ -47,13 +50,13 @@ services:
       CFG_PATH: /config/config.yml # path of config file within the container
       CRON: "@every 15m"           # how often the merger should run, format: https://pkg.go.dev/github.com/robfig/cron#hdr-CRON_Expression_Format
       PROD_ID: CalUnite            # RFC 5545 PRODID, who created the calendar
-      CONTENT_DIR: /wwwdata        # directory from which the files are served
+      CONTENT_DIR: /wwwdata        # directory from which the files are served, no change needed in most cases
       FILE_NAVIGATION: false       # generate an index.html for directories to allow for navigation
       ADDR: 0.0.0.0                # address to bind to
       PORT: 8080                   # port to expose
 ```
 
----
+### 🖧 Reverse Proxy
 
 Files are served via HTTP. If you want HTTP**S**, this should be done via a reverse proxy like [Caddy](https://caddyserver.com/). A minimal example would look something like this:
 
@@ -89,21 +92,43 @@ example.com {
 If you're looking to host this without having a public IP (typical for most home internet connections), you could use something like a [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/).
 A curated guide on how to set this up can be found [here](https://dittrich.pro/cloudflare-tunnel-homelab/).
 
+A Caddy configuration with files other than calendars managed by CalUnite may look like this.
+Adjust to your own needs:
+
+`caddy/Caddyfile`:
+```
+example.com {
+    handle_path /*.ics {
+        reverse_proxy calunite:8080
+    }
+
+    # or use your own webserver
+    handle {
+        root * /path/to/mounted/website
+        file_server
+    }
+}
+```
+
 ## 🔗 How to get iCal links
 
 ### Google Calendar
 
 For Google, this is only possible on the desktop webiste.
 If you are on mobile, you can change the view at the bottom of the page.
+
 Go to your [Google Calendar Settings](https://calendar.google.com/calendar/u/0/r/settings) and click on your desired calendar.
 Here, you can copy the "address in iCal format".
+
 For non-public calendars, you'll need the secret address.
 
 ### Apple Calendar
 
 Go to your [Apple Calendar](https://www.icloud.com/calendar/).
 Then, click on the person icon next to a calendar (will appear when hovering over the name).
-On mobile, under "Calendars", press the "i" icon next to a calendar.
+
+On mobile, press the calendar icon at the bottem of the page, then press the "i" icon next to a calendar.
+
 Make the calendar public and copy the link.
 
 ## 📡 Subscribing to calendars
@@ -116,9 +141,9 @@ Go to [Google Calendar - Add from URL](https://calendar.google.com/calendar/u/0/
 
 ### Apple Calendar
 
-On your Apple device, click "Calendars".
-Under "Add Calendar", add a subscription calendar and paste the URL.
+On your Apple device, click the calendar icon.
+At the bottom under "Add Calendar", add a subscription calendar and paste the URL.
 
 ## ⌨️ Development
 
-For local development, create a `testdata/config.yml`, then run `./run.sh` to start CalUnite via the commandline.
+For local development, create a `testdata/config.yml`, then run `./run.sh` to start CalUnite via the commandline (may need elevated permissions depending on your Docker setup).
