@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/fsnotify/fsnotify"
-	"gopkg.in/yaml.v3"
+	"github.com/goccy/go-yaml"
 )
 
 type CalMap map[string]CalEntry
