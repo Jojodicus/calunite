@@ -8,7 +8,7 @@ RUN go mod download
 
 COPY src/*.go ./
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /calunite
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /calunite
 
 # deploy
 FROM gcr.io/distroless/static-debian12 AS deploy
