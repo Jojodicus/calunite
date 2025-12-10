@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/robfig/cron/v3"
@@ -106,7 +107,7 @@ func main() {
 		log.Fatal(err)
 	}
 	defer watcher.Close()
-	err = watcher.Add(CfgPath)
+	err = watcher.Add(path.Dir(CfgPath))
 	if err != nil {
 		log.Fatal(err)
 	}

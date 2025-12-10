@@ -98,10 +98,11 @@ func watchYml(watcher *fsnotify.Watcher) {
 		select {
 		case event, ok := <-watcher.Events:
 			if !ok {
-				return
+				log.Println("Unexpected", event)
+				continue
 			}
-			if event.Name == CfgPath {
-				log.Println("Modified", event.Name, "reloading...")
+			if event.Has(fsnotify.Write) {
+				log.Println("Modified", event.Name, "- scheduling reload...")
 				err := mergeAndSchedule(cronRunner)
 				if err != nil {
 					// kinda copy paste from main()...
@@ -109,11 +110,8 @@ func watchYml(watcher *fsnotify.Watcher) {
 					log.Println("No files will be served, check config or permissions!")
 				}
 			}
-		case err, ok := <-watcher.Errors:
-			if !ok {
-				return
-			}
-			log.Fatal(err)
+		case err := <-watcher.Errors:
+			log.Println("ERROR", err)
 		}
 	}
 }
