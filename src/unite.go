@@ -77,7 +77,7 @@ func (calEntry *CalEntry) extractVEVENT(calendar string) string {
 	insideEvent := false
 	// filter out CR here, allows us to parse LF-only calendars as well
 	withoutCR := strings.ReplaceAll(calendar, "\r", "")
-	for _, line := range strings.Split(withoutCR, "\n") {
+	for line := range strings.SplitSeq(withoutCR, "\n") {
 		// start of event section
 		if strings.HasPrefix(line, "BEGIN:VEVENT") {
 			insideEvent = true
