@@ -11,6 +11,8 @@ import (
 	"strings"
 )
 
+const DEFAULT_TITLE string = "Calunite Calendar"
+
 func fetchFile(name string) (string, error) {
 	content, err := os.ReadFile(name)
 	return string(content), err
@@ -85,7 +87,12 @@ func fetchAndMerge(entry CalEntry) (string, error) {
 	// header
 	merged := "BEGIN:VCALENDAR\r\n"
 	merged += "VERSION:2.0\r\n"
-	merged += fmt.Sprintf("X-WR-CALNAME:%s\r\n", entry.Title)
+
+	title := DEFAULT_TITLE
+	if entry.Title != nil {
+		title = *entry.Title
+	}
+	merged += fmt.Sprintf("X-WR-CALNAME:%s\r\n", title)
 	merged += fmt.Sprintf("PRODID:-//%s//NONSGML v1.0//EN\r\n", ProdID)
 
 	for _, thing := range entry.Urls {

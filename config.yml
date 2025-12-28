@@ -1,18 +1,22 @@
 ---
 work.ics:     # name and path of the resulting calendar file
-  title: Work # title of merged calendar
+  title: Work # title of merged calendar (optional, default is "CalUnite Calendar")
   urls:       # list of calendars to be merged
     - https://work.com/deadlines.ics
     - https://work.com/holidays.ics
 
+.birthdays.ics: # files prefixed with a dot are private if file navigation is turned off
+  urls:
+    - https://smith.me/birthdays.ics
+
 for/family.ics: # subdirectories are also supported
   title: Family
   urls:
-    - https://smith.me/birthdays.ics
     - https://johnson.me/duties.ics
     - /data/vacation.ics # a local file (absolute path only), needs to be mounted within the container
-    - work.ics           # if a relative path (no `/` at the front) is given, this refers to a previously defined merged calendar
+    - work.ics           # if a relative path (no `/` at the front) is given, this refers to another defined merged calendar
                          # note: cyclic definitions would lead to exponential growth and are unsupported
+    - .birthdays.ics
 
 # CalUnite can also be used to re-host a single calendar and shorten its URL
 doc.ics:

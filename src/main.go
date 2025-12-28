@@ -11,7 +11,7 @@ import (
 )
 
 type CalEntry struct {
-	Title string
+	Title *string
 	Urls  []string
 }
 type CalDatum struct {
@@ -20,13 +20,13 @@ type CalDatum struct {
 }
 type CalData []CalDatum
 
-var CfgPath, Cronjob, ProdID, ContentDir, FileNavigation, Addr, Port string
+var CfgPath, Cronjob, ProdID, ContentDir, FileNavigation, DotPrivate, Addr, Port string
 var cronRunner *cron.Cron
 
 func readEnv() error {
 	var there bool
-	keys := []string{"CFG_PATH", "CRON", "PROD_ID", "CONTENT_DIR", "FILE_NAVIGATION", "ADDR", "PORT"}
-	vars := []*string{&CfgPath, &Cronjob, &ProdID, &ContentDir, &FileNavigation, &Addr, &Port}
+	keys := []string{"CFG_PATH", "CRON", "PROD_ID", "CONTENT_DIR", "FILE_NAVIGATION", "DOT_PRIVATE", "ADDR", "PORT"}
+	vars := []*string{&CfgPath, &Cronjob, &ProdID, &ContentDir, &FileNavigation, &DotPrivate, &Addr, &Port}
 
 	for i, key := range keys {
 		ptr := vars[i]

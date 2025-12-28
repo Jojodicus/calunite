@@ -9,10 +9,16 @@ import (
 )
 
 type justFilesFilesystem struct {
-	Fs http.FileSystem
+	Fs         http.FileSystem
+	DotPrivate bool
 }
 
 func (fs justFilesFilesystem) Open(name string) (http.File, error) {
+	if fs.DotPrivate && len(name) > 2 && name[1] == '.' {
+		// "/.calendar.ics"
+		return nil, os.ErrNotExist
+	}
+
 	f, err := fs.Fs.Open(name)
 
 	if err != nil {
@@ -31,7 +37,10 @@ func serve() {
 	var fileSystem http.FileSystem = http.Dir(".")
 	nav, err := strconv.ParseBool(FileNavigation)
 	if err == nil && !nav {
-		fileSystem = justFilesFilesystem{fileSystem}
+		dotPriv, err := strconv.ParseBool(DotPrivate)
+		if err == nil {
+			fileSystem = justFilesFilesystem{fileSystem, dotPriv}
+		}
 	}
 
 	log.Println("Running webserver on", fmt.Sprintf("%s:%s", Addr, Port))

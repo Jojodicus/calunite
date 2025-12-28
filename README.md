@@ -14,6 +14,7 @@ My problem with these solutions are, that they either don't provide *enough* fea
 This is where **CalUnite** comes in:
 - Combine [RFC 5545](https://datatracker.ietf.org/doc/html/rfc5545) calendars (.ics) using URLs or local paths
 - Supports multiple calendars with a single config file
+- Calendar aliases (private or publicly served)
 - Recursive merging (with cycle detection)
 - Combined calendars are immediately served with a webserver
 - Hot-reload configuration, no need to stop the container
@@ -52,6 +53,7 @@ services:
       PROD_ID: CalUnite            # RFC 5545 PRODID, who created the calendar
       CONTENT_DIR: /wwwdata        # directory from which the files are served, no change needed in most cases
       FILE_NAVIGATION: false       # generate an index.html for directories to allow for navigation
+      DOT_PRIVATE: true            # if files prefixed with a dot (.) should not be served, only applicable when FILE_NAVIGATION is false
       ADDR: 0.0.0.0                # address to bind to
       PORT: 8080                   # port to expose
 ```
