@@ -57,13 +57,27 @@ func fetch(thing string) (string, error) {
 	return "", fmt.Errorf("error reading \"%s\" - %s", thing, err.Error())
 }
 
-func extractVEVENT(calendar string) string {
+func (calEntry *CalEntry) formatIfSUMMARY(originalLine string) string {
+	if calEntry.EventFormat == nil {
+		return originalLine
+	}
+
+	// "SUMMARY:title: potential colons" -> ["SUMMARY", "title: potential colons"]
+	split := strings.SplitN(originalLine, ":", 2)
+	if split[0] == "SUMMARY" {
+		return split[0] + ":" + fmt.Sprintf(*calEntry.EventFormat, split[1])
+	}
+
+	return originalLine
+}
+
+func (calEntry *CalEntry) extractVEVENT(calendar string) string {
 	extracted := ""
 
 	insideEvent := false
-	for _, line := range strings.Split(calendar, "\n") {
-		// note: `line` keeps its \r
-
+	// filter out CR here, allows us to parse LF-only calendars as well
+	withoutCR := strings.ReplaceAll(calendar, "\r", "")
+	for _, line := range strings.Split(withoutCR, "\n") {
 		// start of event section
 		if strings.HasPrefix(line, "BEGIN:VEVENT") {
 			insideEvent = true
@@ -71,7 +85,10 @@ func extractVEVENT(calendar string) string {
 
 		// append line if inside event
 		if insideEvent {
-			extracted += line + "\n"
+			// custom event formatting
+			formatted := calEntry.formatIfSUMMARY(line)
+
+			extracted += formatted + "\r\n"
 		}
 
 		// end of event section
@@ -83,7 +100,7 @@ func extractVEVENT(calendar string) string {
 	return extracted
 }
 
-func fetchAndMerge(entry CalEntry) (string, error) {
+func (entry *CalEntry) fetchAndMerge() (string, error) {
 	// header
 	merged := "BEGIN:VCALENDAR\r\n"
 	merged += "VERSION:2.0\r\n"
@@ -102,7 +119,7 @@ func fetchAndMerge(entry CalEntry) (string, error) {
 		}
 
 		// assume well-formatted RFC 5545
-		merged += extractVEVENT(content)
+		merged += entry.extractVEVENT(content)
 	}
 
 	// footer
@@ -115,7 +132,7 @@ func unite(caldata CalData) func() {
 	return func() {
 		for _, datum := range caldata {
 			// get merged calendar
-			merged, err := fetchAndMerge(datum.Entry)
+			merged, err := datum.Entry.fetchAndMerge()
 			if err != nil {
 				log.Print(err)
 				continue

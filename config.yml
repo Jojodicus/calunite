@@ -1,7 +1,9 @@
 ---
-work.ics:     # name and path of the resulting calendar file
-  title: Work # title of merged calendar (optional, default is "CalUnite Calendar")
-  urls:       # list of calendars to be merged
+work.ics:                   # name and path of the resulting calendar file
+  title: Work               # title of merged calendar (optional, default is "CalUnite Calendar")
+  event_format: "[Work] %s" # optional field for formatting events
+                            # event title is passed as string as first format parameter, uses standard https://pkg.go.dev/fmt
+  urls:                     # list of calendars to be merged
     - https://work.com/deadlines.ics
     - https://work.com/holidays.ics
 

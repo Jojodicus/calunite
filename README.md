@@ -14,6 +14,7 @@ My problem with these solutions are, that they either don't provide *enough* fea
 This is where **CalUnite** comes in:
 - Combine [RFC 5545](https://datatracker.ietf.org/doc/html/rfc5545) calendars (.ics) using URLs or local paths
 - Supports multiple calendars with a single config file
+- Custom formatting of event titles for different calendars
 - Calendar aliases (private or publicly served)
 - Recursive merging (with cycle detection)
 - Combined calendars are immediately served with a webserver

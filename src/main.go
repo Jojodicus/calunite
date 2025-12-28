@@ -11,8 +11,9 @@ import (
 )
 
 type CalEntry struct {
-	Title *string
-	Urls  []string
+	Title       *string  `yaml:"title"`
+	EventFormat *string  `yaml:"event_format"`
+	Urls        []string `yaml:"urls"`
 }
 type CalDatum struct {
 	File  string
