@@ -46,11 +46,11 @@ func createDirsAndCd() error {
 	// to make relative paths work
 	err := os.MkdirAll(ContentDir, os.ModePerm)
 	if err != nil {
-		return fmt.Errorf("could not create new directories: %v", err)
+		return fmt.Errorf("Could not create new directories: %v", err)
 	}
 	err = os.Chdir(ContentDir)
 	if err != nil {
-		return fmt.Errorf("could not change working directory: %v", err)
+		return fmt.Errorf("Could not change working directory: %v", err)
 	}
 	return nil
 }
@@ -59,7 +59,7 @@ func mergeAndSchedule(cronjobs *cron.Cron) error {
 	// parse immediately, as little downtime as possible
 	calmap, err := parseYml(CfgPath)
 	if err != nil {
-		return fmt.Errorf("could not parse yml: %v", err)
+		return fmt.Errorf("Could not parse yml: %v", err)
 	}
 
 	entries := cronjobs.Entries()
@@ -74,7 +74,7 @@ func mergeAndSchedule(cronjobs *cron.Cron) error {
 		// clean state
 		err := os.RemoveAll(ContentDir)
 		if err != nil {
-			return fmt.Errorf("could not clean old directory: %v", err)
+			return fmt.Errorf("Could not clean old directory: %v", err)
 		}
 		err = createDirsAndCd()
 		if err != nil {
@@ -120,7 +120,7 @@ func main() {
 	cronRunner = cron.New()
 	err = mergeAndSchedule(cronRunner)
 	if err != nil {
-		log.Println("ERROR", err)
+		log.Println(err)
 		log.Println("No files will be served, check config or permissions!")
 	}
 

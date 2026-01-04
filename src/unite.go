@@ -34,6 +34,9 @@ func fetchUrl(url string) (string, error) {
 		return "", err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode/100 != 2 {
+		return "", fmt.Errorf("Got status code %d for %s", resp.StatusCode, url)
+	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -134,20 +137,20 @@ func unite(caldata CalData) func() {
 			// get merged calendar
 			merged, err := datum.Entry.fetchAndMerge()
 			if err != nil {
-				log.Print(err)
+				log.Printf("Not updating calendar %s: %v\n", datum.File, err)
 				continue
 			}
 
 			// create directory if it doesn't exist
 			err = os.MkdirAll(filepath.Dir(datum.File), os.ModePerm)
 			if err != nil {
-				log.Print(err)
+				log.Printf("Could not create directories for %s: %v", datum.File, err)
 				continue
 			}
 			// write merged calendar
 			err = os.WriteFile(datum.File, []byte(merged), 0666)
 			if err != nil {
-				log.Print(err)
+				log.Printf("Could not write %s: %v", datum.File, err)
 			}
 		}
 	}
