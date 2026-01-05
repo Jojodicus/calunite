@@ -2,6 +2,9 @@
 [![Docker](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![MIT](https://img.shields.io/badge/MIT-green?style=for-the-badge)](https://opensource.org/license/mit)
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/Jojodicus/calunite)](https://goreportcard.com/report/github.com/Jojodicus/calunite)
+[![Docker Image](https://github.com/jojodicus/calunite/actions/workflows/docker-image.yml/badge.svg)](https://hub.docker.com/r/jojodicus/calunite/tags)
+
 # 🗓️ [CalUnite](https://hub.docker.com/r/jojodicus/calunite)
 
 Sharing calendars has historically always been a pain, at least for me.
