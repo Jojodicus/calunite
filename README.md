@@ -7,12 +7,12 @@
 
 # 🗓️ [CalUnite](https://hub.docker.com/r/jojodicus/calunite)
 
-Sharing calendars has historically always been a pain, at least for me.
-Especially when your goal is to combine a plethora of different calendars into one simple domain you can share with your significant other, relatives, or friend groups.
+Calendar sharing has long been unnecessarily cumbersome,
+especially when the objective is to consolidate multiple calendar sources into a single,
+easily shareable view for partners, families, or groups.
 
-For the last few years, I've used [davorg/mergecal](https://github.com/davorg/mergecal) to combine calendars.
-By now, there are also other alternatives available, like the misfortunately named [mergecal.org](https://mergecal.org/).
-My problem with these solutions are, that they either don't provide *enough* features, or are heavily overengineered.
+While several tools exist to merge calendars, many available solutions fall into two extremes:
+they either lack essential flexibility or are burdened by unnecessary complexity and overengineering.
 
 This is where **CalUnite** comes in:
 - Combine [RFC 5545](https://datatracker.ietf.org/doc/html/rfc5545) calendars (.ics) using URLs or local paths
