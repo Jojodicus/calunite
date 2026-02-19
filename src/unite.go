@@ -79,7 +79,7 @@ func (calEntry *CalEntry) formatIfSUMMARY(originalLine string) string {
 }
 
 func (calEntry *CalEntry) extractVEVENT(calendar string) string {
-	extracted := ""
+	var sbExtracted strings.Builder
 
 	insideEvent := false
 	// filter out CR here, allows us to parse LF-only calendars as well
@@ -95,7 +95,8 @@ func (calEntry *CalEntry) extractVEVENT(calendar string) string {
 			// custom event formatting
 			formatted := calEntry.formatIfSUMMARY(line)
 
-			extracted += formatted + "\r\n"
+			sbExtracted.WriteString(formatted)
+			sbExtracted.WriteString("\r\n")
 		}
 
 		// end of event section
@@ -104,20 +105,27 @@ func (calEntry *CalEntry) extractVEVENT(calendar string) string {
 		}
 	}
 
-	return extracted
+	return sbExtracted.String()
 }
 
 func (entry *CalEntry) fetchAndMerge() (string, error) {
+	var sbMerged strings.Builder
+
 	// header
-	merged := "BEGIN:VCALENDAR\r\n"
-	merged += "VERSION:2.0\r\n"
+	sbMerged.WriteString("BEGIN:VCALENDAR\r\n")
+	sbMerged.WriteString("VERSION:2.0\r\n")
 
 	title := DEFAULT_TITLE
 	if entry.Title != nil {
 		title = *entry.Title
 	}
-	merged += fmt.Sprintf("X-WR-CALNAME:%s\r\n", title)
-	merged += fmt.Sprintf("PRODID:-//%s//NONSGML v1.0//EN\r\n", ProdID)
+	sbMerged.WriteString("X-WR-CALNAME:")
+	sbMerged.WriteString(title)
+	sbMerged.WriteString("\r\n")
+
+	sbMerged.WriteString("PRODID:-//")
+	sbMerged.WriteString(ProdID)
+	sbMerged.WriteString("//NONSGML v1.0//EN\r\n")
 
 	for _, thing := range entry.Urls {
 		content, err := fetch(thing)
@@ -126,12 +134,12 @@ func (entry *CalEntry) fetchAndMerge() (string, error) {
 		}
 
 		// assume well-formatted RFC 5545
-		merged += entry.extractVEVENT(content)
+		sbMerged.WriteString(entry.extractVEVENT(content))
 	}
 
 	// footer
-	merged += "END:VCALENDAR\r\n"
-	return merged, nil
+	sbMerged.WriteString("END:VCALENDAR\r\n")
+	return sbMerged.String(), nil
 }
 
 func unite(caldata CalData) func() {
