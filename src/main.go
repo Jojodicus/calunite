@@ -88,7 +88,10 @@ func mergeAndSchedule(cronjobs *cron.Cron) error {
 	merger()
 	log.Println("Initial merge finished")
 
-	cronjobs.AddFunc(Cronjob, merger)
+	_, err = cronjobs.AddFunc(Cronjob, merger)
+	if err != nil {
+		return fmt.Errorf("Unable to register cronjob: %v", err)
+	}
 	cronjobs.Start()
 	log.Println("Started merge cronjob")
 	return nil
