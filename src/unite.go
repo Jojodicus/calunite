@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
-	"log"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
@@ -14,6 +14,7 @@ import (
 const DEFAULT_TITLE string = "Calunite Calendar"
 
 func fetchFile(name string) (string, error) {
+	slog.Debug(fmt.Sprintf("Fetching file %v", name))
 	content, err := os.ReadFile(name)
 	return string(content), err
 }
@@ -24,6 +25,8 @@ func IsUrl(str string) bool {
 }
 
 func fetchUrl(url string) (string, error) {
+	slog.Debug(fmt.Sprintf("Fetching URL %v", url))
+
 	// rewrite url, the webcal protocol is just https in disguise
 	if strings.HasPrefix(url, "webcal") {
 		url = strings.Replace(url, "webcal", "https", 1)
@@ -47,17 +50,18 @@ func fetchUrl(url string) (string, error) {
 }
 
 func fetch(thing string) (string, error) {
+	if IsUrl(thing) {
+		return fetchUrl(thing)
+	}
+
 	content, err := fetchFile(thing)
 	if err == nil {
 		// file exists and was read successfully
 		return content, nil
 	}
-	if IsUrl(thing) {
-		return fetchUrl(thing)
-	}
 
 	// neither
-	return "", fmt.Errorf("error reading \"%s\" - %s", thing, err.Error())
+	return "", fmt.Errorf("Error reading \"%s\" - %s", thing, err.Error())
 }
 
 func (calEntry *CalEntry) formatIfSUMMARY(originalLine string) string {
@@ -134,24 +138,28 @@ func unite(caldata CalData) func() {
 	// closures are awesome!
 	return func() {
 		for _, datum := range caldata {
+			slog.Debug(fmt.Sprintf("Creating calendar %s", datum.File))
+
 			// get merged calendar
 			merged, err := datum.Entry.fetchAndMerge()
 			if err != nil {
-				log.Printf("Not updating calendar %s: %v\n", datum.File, err)
+				slog.Warn(fmt.Sprintf("Failed to merge calendar %s", datum.File), ErrAttr(err))
 				continue
 			}
 
 			// create directory if it doesn't exist
 			err = os.MkdirAll(filepath.Dir(datum.File), os.ModePerm)
 			if err != nil {
-				log.Printf("Could not create directories for %s: %v", datum.File, err)
+				slog.Warn(fmt.Sprintf("Could not create directories for %s", datum.File), ErrAttr(err))
 				continue
 			}
 			// write merged calendar
 			err = os.WriteFile(datum.File, []byte(merged), 0666)
 			if err != nil {
-				log.Printf("Could not write %s: %v", datum.File, err)
+				slog.Warn(fmt.Sprintf("Could not write %s", datum.File), ErrAttr(err))
 			}
+
+			slog.Debug(fmt.Sprintf("Created calendar %s", datum.File))
 		}
 	}
 }

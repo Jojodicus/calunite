@@ -2,13 +2,21 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/robfig/cron/v3"
 )
+
+var logLevels = map[string]slog.Level{
+	"debug": slog.LevelDebug,
+	"info":  slog.LevelInfo,
+	"warn":  slog.LevelWarn,
+	"error": slog.LevelError,
+}
 
 type CalEntry struct {
 	Title       *string  `yaml:"title"`
@@ -21,13 +29,15 @@ type CalDatum struct {
 }
 type CalData []CalDatum
 
-var CfgPath, Cronjob, ProdID, ContentDir, FileNavigation, DotPrivate, Addr, Port string
+var CfgPath, Cronjob, ProdID, ContentDir, FileNavigation, DotPrivate, Addr, Port, LogLevel string
 var cronRunner *cron.Cron
 
 func readEnv() error {
+	slog.Info("Reading configured environment variables")
+
 	var there bool
-	keys := []string{"CFG_PATH", "CRON", "PROD_ID", "CONTENT_DIR", "FILE_NAVIGATION", "DOT_PRIVATE", "ADDR", "PORT"}
-	vars := []*string{&CfgPath, &Cronjob, &ProdID, &ContentDir, &FileNavigation, &DotPrivate, &Addr, &Port}
+	keys := []string{"CFG_PATH", "CRON", "PROD_ID", "CONTENT_DIR", "FILE_NAVIGATION", "DOT_PRIVATE", "ADDR", "PORT", "LOG_LEVEL"}
+	vars := []*string{&CfgPath, &Cronjob, &ProdID, &ContentDir, &FileNavigation, &DotPrivate, &Addr, &Port, &LogLevel}
 
 	for i, key := range keys {
 		ptr := vars[i]
@@ -36,13 +46,15 @@ func readEnv() error {
 		if !there {
 			return fmt.Errorf("missing %s", key)
 		}
-		log.Println(key, "=", *ptr)
+		slog.Debug(fmt.Sprint(key, "=", *ptr))
 	}
 
 	return nil
 }
 
 func createDirsAndCd() error {
+	slog.Debug("Creating directories and changing CWD")
+
 	// to make relative paths work
 	err := os.MkdirAll(ContentDir, os.ModePerm)
 	if err != nil {
@@ -65,13 +77,16 @@ func mergeAndSchedule(cronjobs *cron.Cron) error {
 	entries := cronjobs.Entries()
 	if len(entries) != 0 {
 		for i := range len(entries) {
-			cronjobs.Remove(entries[i].ID)
+			entry := entries[i]
+			slog.Debug(fmt.Sprintf("Removing cron entry %v", entry))
+			cronjobs.Remove(entry.ID)
 		}
 
+		slog.Info("Stopping previous cronjob")
 		<-cronjobs.Stop().Done() // avoid potential race condition
-		log.Println("Stopped previous cronjob")
 
 		// clean state
+		slog.Info("Removing old calendars")
 		err := os.RemoveAll(ContentDir)
 		if err != nil {
 			return fmt.Errorf("Could not clean old directory: %v", err)
@@ -84,36 +99,47 @@ func mergeAndSchedule(cronjobs *cron.Cron) error {
 	// --- only section during reload with downtime ---
 
 	// start first merge immediately
+	slog.Info("Starting initial merge, this can take a while...")
 	merger := unite(calmap)
 	merger()
-	log.Println("Initial merge finished")
+	slog.Info("Initial merge finished, starting merge cronjob")
 
 	_, err = cronjobs.AddFunc(Cronjob, merger)
 	if err != nil {
 		return fmt.Errorf("Unable to register cronjob: %v", err)
 	}
 	cronjobs.Start()
-	log.Println("Started merge cronjob")
+	slog.Debug("Started merge cronjob")
 	return nil
 }
 
 func main() {
-	log.Println("CalUnite started, reading environment variables")
+	// initialize logger - debug as initial level
+	logLevel := &slog.LevelVar{}
+	logLevel.Set(slog.LevelDebug)
+	logger := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: logLevel})
+	slog.SetDefault(slog.New(logger))
+
+	slog.Info("Welcome to CalUnite!")
 
 	err := readEnv()
 	if err != nil {
-		panic(err)
+		Fatal("Error while reading environment variables", err)
 	}
+
+	newLevel := logLevels[strings.ToLower(LogLevel)]
+	slog.Debug(fmt.Sprintf("Setting log-level to %v", newLevel))
+	logLevel.Set(newLevel)
 
 	// watch config for changes
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		log.Fatal(err)
+		Fatal("Error while creating file watcher", err)
 	}
 	defer watcher.Close()
 	err = watcher.Add(path.Dir(CfgPath))
 	if err != nil {
-		log.Fatal(err)
+		Fatal("Error while configuring file watcher", err)
 	}
 	go watchYml(watcher)
 
@@ -123,8 +149,7 @@ func main() {
 	cronRunner = cron.New()
 	err = mergeAndSchedule(cronRunner)
 	if err != nil {
-		log.Println(err)
-		log.Println("No files will be served, check config or permissions!")
+		slog.Warn("No files will be served, check config or permissions!", ErrAttr(err))
 	}
 
 	serve()

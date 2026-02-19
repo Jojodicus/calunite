@@ -60,6 +60,7 @@ services:
       DOT_PRIVATE: true            # if files prefixed with a dot (.) should not be served, only applicable when FILE_NAVIGATION is false
       ADDR: 0.0.0.0                # address to bind to
       PORT: 8080                   # port to expose
+      LOG_LEVEL: info              # log level, one of [debug, info, warn, error] - case insensitive
 ```
 
 ### 🖧 Reverse Proxy

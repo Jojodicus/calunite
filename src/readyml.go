@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"strings"
 
@@ -32,6 +32,7 @@ func (caldata CalData) contains(file string) bool {
 }
 
 func topoSort(calmap CalMap) (CalData, error) {
+	slog.Debug("Sorting calendars topologically")
 	// sort out cyclic recursive definitions
 
 	// ordered list that satisfies all recursive dependencies
@@ -76,19 +77,20 @@ func topoSort(calmap CalMap) (CalData, error) {
 }
 
 func parseYml(filename string) (CalData, error) {
+	slog.Debug(fmt.Sprintf("Reading config file %s", filename))
 	file, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
-	log.Println(filename, "read successfully")
 
 	var calmap CalMap
 
+	slog.Debug("Parsing config file")
 	err = yaml.Unmarshal(file, &calmap)
 	if err != nil {
 		return nil, err
 	}
-	log.Println("YAML parsing done")
+	slog.Debug(fmt.Sprintf("Parsed config: %s", calmap.String()))
 
 	return topoSort(calmap)
 }
@@ -98,20 +100,19 @@ func watchYml(watcher *fsnotify.Watcher) {
 		select {
 		case event, ok := <-watcher.Events:
 			if !ok {
-				log.Println("Unexpected", event)
+				slog.Warn(fmt.Sprintf("Unexpected file event: %v", event))
 				continue
 			}
 			if event.Has(fsnotify.Write) {
-				log.Println("Modified", event.Name, "- scheduling reload...")
+				slog.Info(fmt.Sprintf("File %v has been modified - scheduling reload...", event.Name))
 				err := mergeAndSchedule(cronRunner)
 				if err != nil {
 					// kinda copy paste from main()...
-					log.Println("ERROR", err)
-					log.Println("No files will be served, check config or permissions!")
+					slog.Warn("No files will be served, check config or permissions!", ErrAttr(err))
 				}
 			}
 		case err := <-watcher.Errors:
-			log.Println("ERROR", err)
+			slog.Error("File watcher error", ErrAttr(err))
 		}
 	}
 }
