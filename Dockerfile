@@ -1,5 +1,5 @@
 # build
-FROM golang AS builder
+FROM golang:latest AS builder
 
 WORKDIR /src
 
@@ -11,7 +11,7 @@ COPY src/*.go ./
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /calunite
 
 # deploy
-FROM gcr.io/distroless/static-debian12 AS deploy
+FROM gcr.io/distroless/static-debian13 AS deploy
 
 WORKDIR /
 
